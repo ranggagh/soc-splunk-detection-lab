@@ -1,0 +1,92 @@
+# SSH Brute-Force Detection - Splunk SPL Queries
+#
+# Scenario: 01-ssh-bruteforce
+# Data source: Ubuntu /var/log/auth.log
+# Index: main
+# Sourcetype: linux_secure
+
+
+# ============================================================
+# 1. Search for Failed SSH Authentication
+# ============================================================
+# Purpose:
+# Identify SSH authentication events where the password
+# authentication attempt failed.
+
+index=main sourcetype=linux_secure "Failed password"
+
+
+# ============================================================
+# 2. Extract Source IP Address
+# ============================================================
+# Purpose:
+# Extract the source IP address from failed SSH events
+# for further investigation.
+
+index=main sourcetype=linux_secure "Failed password"
+| rex "Failed password for \S+ from (?<src_ip>\d+\.\d+\.\d+\.\d+)"
+
+
+# ============================================================
+# 3. Count Failed Attempts by Source IP
+# ============================================================
+# Purpose:
+# Determine how many failed SSH authentication attempts
+# originated from each source IP.
+
+index=main sourcetype=linux_secure "Failed password"
+| rex "Failed password for \S+ from (?<src_ip>\d+\.\d+\.\d+\.\d+)"
+| stats count by src_ip
+
+
+# ============================================================
+# 4. Basic SSH Brute-Force Detection
+# ============================================================
+# Purpose:
+# Detect a potential brute-force pattern when the same
+# source IP generates 5 or more failed SSH authentication
+# attempts within the previous 5 minutes.
+
+index=main sourcetype=linux_secure "Failed password" earliest=-5m
+| rex "Failed password for \S+ from (?<src_ip>\d+\.\d+\.\d+\.\d+)"
+| stats count by src_ip
+| where count >= 5
+
+
+# ============================================================
+# 5. Investigate a Specific Source IP
+# ============================================================
+# Purpose:
+# Review all failed SSH authentication events associated
+# with a specific source IP.
+#
+# Replace <SOURCE_IP> with the IP address being investigated.
+
+index=main sourcetype=linux_secure "Failed password" "<SOURCE_IP>"
+| rex "Failed password for (?<user>\S+) from (?<src_ip>\d+\.\d+\.\d+\.\d+)"
+| table _time host user src_ip source
+
+
+# ============================================================
+# 6. Review Failed Attempts Over Time
+# ============================================================
+# Purpose:
+# Visualize the number of failed SSH authentication events
+# over time.
+
+index=main sourcetype=linux_secure "Failed password"
+| timechart span=1m count
+
+
+# ============================================================
+# Detection Notes
+# ============================================================
+#
+# Threshold used in this lab:
+#   >= 5 failed SSH authentication attempts
+#   from the same source IP
+#   within 5 minutes.
+#
+# This is a basic educational detection rule.
+# Production environments should add additional context
+# and correlation to reduce false positives.
