@@ -1,584 +1,201 @@
-\# SOC Splunk Detection Lab
+# 🛡️ SOC Splunk Detection Lab
 
+A hands-on cybersecurity laboratory project focused on **Security Operations Center (SOC)** monitoring, log analysis, attack simulation, and threat detection using **Splunk SIEM**.
 
+This project demonstrates how security events are generated in a controlled lab environment, ingested as logs, analyzed using Splunk Search Processing Language (SPL), and transformed into actionable detection rules.
 
-A hands-on cybersecurity laboratory project focused on \*\*Security Operations Center (SOC)\*\* monitoring, log analysis, attack simulation, and detection using \*\*Splunk SIEM\*\*.
+---
 
+## 🎯 Project Objectives
 
+- Learn the fundamentals of SIEM and continuous security monitoring.
+- Generate realistic security events in a controlled environment.
+- Collect and analyze system, network, and application logs.
+- Write custom Splunk SPL queries for threat detection.
+- Identify suspicious activities, anomalous behavior, and attack patterns.
+- Document investigation workflows and detection mechanisms.
+- Build a practical cybersecurity portfolio tailored for SOC Analyst roles.
 
-This project demonstrates how security events can be generated in a controlled lab environment, collected as logs, analyzed using Splunk Search Processing Language (SPL), and transformed into practical detection scenarios.
+---
 
+## 🏗️ Lab Environment
 
+The laboratory utilizes a virtualized environment hosted on a Windows machine.
 
-\---
+### Main Components
 
+| Component | Role | Description |
+| :--- | :--- | :--- |
+| **Windows Host** | Base Host & Management | Host machine running the Splunk instance |
+| **Ubuntu Linux** | Target System | Endpoint generating security and system logs |
+| **Splunk Enterprise** | SIEM Platform | Log indexing, search processing, and dashboarding |
+| **Splunk Universal Forwarder** | Log Agent | Shipping local logs from Ubuntu to Splunk SIEM |
+| **VirtualBox** | Virtualization | Hypervisor hosting the virtual machines |
 
+### Data Flow
 
-\## 🎯 Project Objectives
+```mermaid
+flowchart TD
+    A[Attack / Suspicious Activity] --> B[Ubuntu Target System]
+    B -->|Local Logs| C[Splunk Universal Forwarder]
+    C -->|Forward Logs| D[Splunk SIEM]
+    D -->|Search Processing| E[SPL Detection Queries]
+    E --> F[Alerting & Investigation]
+🔎 Detection Scenarios
+01 — SSH Brute Force
+Simulates repeated failed SSH authentication attempts against an Ubuntu Linux system.
 
+Objective: Detect brute-force attempts and isolate the source IP associated with the suspicious authentication activity.
 
+Data Source: /var/log/auth.log
 
-The main objectives of this project are:
+Detection Stack: Splunk, SPL, Linux Auth Logs
 
+📁 Scenario Path: scenarios/01-ssh-bruteforce
 
+02 — Web Attack
+Simulates reconnaissance and attack vectors against a web application to analyze HTTP server logs.
 
-\* Learn the fundamentals of SIEM and security monitoring.
+Objective: Identify abnormal HTTP requests, web scanners, and malicious request patterns.
 
-\* Generate realistic security events in a controlled environment.
+Planned Analysis:
 
-\* Collect and analyze system and application logs.
+Suspicious HTTP methods & User-Agents
 
-\* Create Splunk SPL queries for threat detection.
+Abnormal request frequency and status codes (e.g., 40x spikes)
 
-\* Identify suspicious activities and attack patterns.
+Attacker source IP identification
 
-\* Document investigation and detection processes.
+📁 Scenario Path: scenarios/02-web-attack
 
-\* Build a practical cybersecurity portfolio focused on SOC Analyst skills.
+03 — SQL Injection (SQLi)
+Simulates SQL injection exploitation attempts against a vulnerable web application.
 
+Objective: Detect malicious SQL payloads delivered via URI parameters and application logs.
 
+Planned Analysis:
 
-\---
+SQL payload signature pattern matching
 
+Detection of abnormal query syntax (UNION SELECT, ' OR 1=1)
 
+Correlation of request anomalies with web response codes
 
-\## 🏗️ Lab Environment
+📁 Scenario Path: scenarios/03-sql-injection
 
+04 — Phishing Investigation
+Analyzes a simulated phishing vector from an operational defensive perspective.
 
+Objective: Understand key indicators of compromise (IOCs) tied to email-borne threats and document response steps.
 
-The laboratory uses a virtualized environment and a Windows host.
+Planned Analysis:
 
+Suspicious header and sender analysis
 
+Identification of malicious URLs and embedded links
 
-\### Main Components
+Extraction of host and network IOCs
 
+📁 Scenario Path: scenarios/04-phishing
 
-
-| Component                  | Role                                |
-
-| -------------------------- | ----------------------------------- |
-
-| Windows                    | Host machine and Splunk environment |
-
-| Ubuntu Linux               | Target system                       |
-
-| Splunk                     | SIEM and log analysis               |
-
-| Splunk Universal Forwarder | Log collection and forwarding       |
-
-| VirtualBox                 | Virtualization platform             |
-
-
-
-\### Data Flow
-
-
-
-```text
-
-Attack / Suspicious Activity
-
-\\\&#x20;         │
-
-\\\&#x20;         ▼
-
-\\\&#x20;    Ubuntu Target
-
-\\\&#x20;         │
-
-\\\&#x20;         │ Logs
-
-\\\&#x20;         ▼
-
-Splunk Universal Forwarder
-
-\\\&#x20;         │
-
-\\\&#x20;         │ Forward logs
-
-\\\&#x20;         ▼
-
-\\\&#x20;      Splunk SIEM
-
-\\\&#x20;         │
-
-\\\&#x20;         ▼
-
-\\\&#x20;  SPL Detection Query
-
-\\\&#x20;         │
-
-\\\&#x20;         ▼
-
-\\\&#x20;  Detection / Analysis
-
-```
-
-
-
-\---
-
-
-
-\## 🔎 Detection Scenarios
-
-
-
-The project is organized into several attack detection scenarios.
-
-
-
-\### 01 — SSH Brute Force
-
-
-
-Simulates repeated failed SSH authentication attempts against an Ubuntu system.
-
-
-
-\*\*Objective:\*\*
-
-Detect multiple failed login attempts and identify the source IP associated with suspicious authentication activity.
-
-
-
-\*\*Data Source:\*\*
-
-
-
-\* `/var/log/auth.log`
-
-
-
-\*\*Detection Technology:\*\*
-
-
-
-\* Splunk
-
-\* SPL
-
-\* Linux authentication logs
-
-
-
-📁 \[`scenarios/01-ssh-bruteforce`](./scenarios/01-ssh-bruteforce)
-
-
-
-\---
-
-
-
-\### 02 — Web Attack
-
-
-
-Simulates suspicious activity against a web application and analyzes HTTP/web server logs using Splunk.
-
-
-
-\*\*Objective:\*\*
-
-Identify abnormal HTTP requests and suspicious web attack patterns.
-
-
-
-Planned analysis includes:
-
-
-
-\* Suspicious HTTP requests
-
-\* Abnormal request patterns
-
-\* Attacker source IP identification
-
-\* HTTP status code analysis
-
-\* Detection using Splunk SPL
-
-
-
-📁 \[`scenarios/02-web-attack`](./scenarios/02-web-attack)
-
-
-
-\---
-
-
-
-\### 03 — SQL Injection
-
-
-
-Simulates SQL injection attempts against a vulnerable web application.
-
-
-
-\*\*Objective:\*\*
-
-Identify malicious SQL-related input and suspicious web requests through application/web server logs.
-
-
-
-Planned analysis includes:
-
-
-
-\* SQL injection payload detection
-
-\* Suspicious URL parameters
-
-\* Attacker source IP
-
-\* Request frequency
-
-\* HTTP response analysis
-
-\* Splunk-based detection
-
-
-
-📁 \[`scenarios/03-sql-injection`](./scenarios/03-sql-injection)
-
-
-
-\---
-
-
-
-\### 04 — Phishing
-
-
-
-Analyzes a simulated phishing scenario from a defensive SOC perspective.
-
-
-
-\*\*Objective:\*\*
-
-Understand indicators commonly associated with phishing attacks and document the investigation process.
-
-
-
-Planned analysis includes:
-
-
-
-\* Suspicious sender information
-
-\* Malicious URLs
-
-\* Social engineering indicators
-
-\* Email artifacts
-
-\* IOC identification
-
-\* Investigation workflow
-
-
-
-📁 \[`scenarios/04-phishing`](./scenarios/04-phishing)
-
-
-
-\---
-
-
-
-\## 🛠️ Tools \& Technologies
-
-
-
-\* \*\*Splunk SIEM\*\*
-
-\* \*\*Splunk Search Processing Language (SPL)\*\*
-
-\* \*\*Splunk Universal Forwarder\*\*
-
-\* \*\*Ubuntu Linux\*\*
-
-\* \*\*Windows\*\*
-
-\* \*\*VirtualBox\*\*
-
-\* \*\*SSH\*\*
-
-\* \*\*Web Server Logs\*\*
-
-\* \*\*Linux Authentication Logs\*\*
-
-
-
-\---
-
-
-
-\## 🧪 Detection Methodology
-
-
-
-Each scenario follows a similar SOC investigation workflow:
-
-
-
-```text
-
-1\\\\. Attack Simulation
-
-\\\&#x20;       ↓
-
-2\\\\. Log Generation
-
-\\\&#x20;       ↓
-
-3\\\\. Log Collection
-
-\\\&#x20;       ↓
-
-4\\\\. Log Ingestion into Splunk
-
-\\\&#x20;       ↓
-
-5\\\\. SPL Query
-
-\\\&#x20;       ↓
-
-6\\\\. Detection
-
-\\\&#x20;       ↓
-
-7\\\\. Investigation
-
-\\\&#x20;       ↓
-
-8\\\\. Documentation
-
-```
-
-
-
-The goal is not only to generate an attack, but to demonstrate the complete process from \*\*security event → log → detection → investigation\*\*.
-
-
-
-\---
-
-
-
-\## 📊 Example Detection
-
-
-
-Example SPL query for detecting repeated SSH authentication failures:
-
-
-
-```spl
-
-index=main sourcetype=linux\\\\\\\_secure "Failed password"
-
-| rex "Failed password for \\\\\\\\S+ from (?<src\\\\\\\_ip>\\\\\\\\d+\\\\\\\\.\\\\\\\\d+\\\\\\\\.\\\\\\\\d+\\\\\\\\.\\\\\\\\d+)"
-
-| stats count by src\\\\\\\_ip
-
+🛠️ Tools & Technologies
+SIEM & Analytics: Splunk Enterprise, Splunk Search Processing Language (SPL)
+
+Log Collection: Splunk Universal Forwarder
+
+Operating Systems: Ubuntu Linux, Windows 10/11
+
+Virtualization: VirtualBox
+
+Data Sources: Linux Authentication Logs (auth.log), Web Server Logs (Apache/Nginx)
+
+🧪 Detection Methodology
+Each scenario follows a standardized SOC investigation lifecycle:
+
+Cuplikan kode
+flowchart LR
+    A[1. Attack Simulation] --> B[2. Log Generation]
+    B --> C[3. Log Collection]
+    C --> D[4. Ingestion to Splunk]
+    D --> E[5. SPL Querying]
+    E --> F[6. Detection Rule]
+    F --> G[7. Investigation]
+    G --> H[8. Documentation]
+📊 Example Detection Query
+Below is an example SPL query designed to identify potential SSH Brute-Force attacks by thresholding failed authentication events:
+
+Splunk SPL
+index=main sourcetype=linux_secure "Failed password"
+| rex "Failed password for \S+ from (?<src_ip>\d+\.\d+\.\d+\.\d+)"
+| stats count by src_ip
 | where count >= 5
-
 | sort - count
+Query Explanation:
 
-```
+Filters for raw log events containing "Failed password" in the linux_secure sourcetype.
 
+Extracts the source IP address (src_ip) using Regex.
 
+Groups and counts total occurrences per source IP.
 
-This query extracts the source IP from failed SSH authentication events, counts the number of attempts, and highlights IP addresses with five or more failed attempts.
+Triggers when an IP reaches 5 or more failed attempts.
 
-
-
-\---
-
-
-
-\## 📂 Project Structure
-
-
-
-```text
-
+📂 Project Structure
+Plaintext
 soc-splunk-detection-lab/
-
 │
-
 ├── README.md
-
 │
-
 ├── scenarios/
-
-│   │
-
 │   ├── 01-ssh-bruteforce/
-
 │   │   ├── README.md
-
 │   │   ├── queries.spl
-
 │   │   └── screenshots/
-
-│   │
-
 │   ├── 02-web-attack/
-
-│   │
-
 │   ├── 03-sql-injection/
-
-│   │
-
 │   └── 04-phishing/
-
 │
-
 ├── dashboards/
-
-│
-
 └── documentation/
+📸 Evidence & Documentation
+Detailed evidence, investigation notes, and step-by-step screenshots are documented inside each scenario folder.
 
-```
+Artifacts provided include:
 
+Execution of attack commands/scripts
 
+Ingested raw log events in Splunk
 
-\---
+SPL search results and logic breakdown
 
+Custom Splunk Dashboards
 
+🎓 Skills Demonstrated
+SIEM Management: Administering log ingestion, index configurations, and parsing.
 
-\## 📸 Evidence \& Documentation
+Log Analysis: Deep understanding of Linux authentication and HTTP web logs.
 
+Threat Detection: Writing target-oriented SPL logic for attack patterns.
 
+Threat Hunting: Identifying malicious indicators (IOCs) within noisy datasets.
 
-Screenshots and supporting documentation are included to demonstrate the laboratory process and detection results.
+Documentation: Structuring clear SOC investigation procedures and detection guides.
 
+🚀 Future Improvements
+[ ] Map all scenario detections directly to the MITRE ATT&CK® Framework.
 
+[ ] Build interactive multi-panel Splunk Dashboards for SOC visibility.
 
-Evidence may include:
+[ ] Implement automated real-time alerts with email/webhook triggers.
 
+[ ] Add advanced correlation searches (e.g., successful login after multiple failures).
 
+⚠️ Disclaimer
+All simulations, logs, and attacks demonstrated within this repository were performed inside an isolated and authorized laboratory environment strictly for educational and defensive security research.
 
-\* Attack simulation
+Unauthorized testing against targets without explicit permission is illegal.
 
-\* Generated logs
+👤 Author
+SOC Splunk Detection Lab
 
-\* Splunk searches
-
-\* Detection results
-
-\* Source IP identification
-
-\* Investigation findings
-
-\* Relevant dashboards
-
-
-
-\---
-
-
-
-\## 🎓 Skills Demonstrated
-
-
-
-This project demonstrates practical experience in:
-
-
-
-\* SIEM monitoring
-
-\* Log analysis
-
-\* Security event investigation
-
-\* SPL query development
-
-\* Authentication monitoring
-
-\* Attack detection
-
-\* IOC identification
-
-\* Linux security monitoring
-
-\* Web security monitoring
-
-\* SOC investigation workflow
-
-\* Security documentation
-
-
-
-\---
-
-
-
-\## 🚀 Future Improvements
-
-
-
-Planned improvements include:
-
-
-
-\* Additional attack detection scenarios
-
-\* Splunk dashboards
-
-\* Alert configuration
-
-\* Detection based on thresholds and time windows
-
-\* More advanced correlation searches
-
-\* Web attack detection
-
-\* SQL injection detection
-
-\* Phishing investigation
-
-\* MITRE ATT\&CK technique mapping
-
-\* Incident investigation reports
-
-
-
-\---
-
-
-
-\## ⚠️ Disclaimer
-
-
-
-All attacks and security testing activities in this repository are performed in a \*\*controlled laboratory environment\*\* for educational and defensive cybersecurity purposes.
-
-
-
-Do not use these techniques against systems without proper authorization.
-
-
-
-\---
-
-
-
-\## 👤 Project
-
-
-
-\*\*SOC Splunk Detection Lab\*\*
-
-
-
-Built as a practical cybersecurity portfolio project to demonstrate \*\*SOC Analyst, SIEM, log analysis, and threat detection skills\*\*.
-
+A portfolio project built to showcase practical skills in SOC Analysis, Threat Detection, SIEM Engineering, and Security Incident Response.
